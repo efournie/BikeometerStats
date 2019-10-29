@@ -1,11 +1,15 @@
 import sqlite3
 import matplotlib.pyplot as plt
+import numpy as np
 
 def get_distances(conn):
     cur = conn.cursor()
     cur.execute('SELECT Distance from track_details_table')
-    rows = cur.fetchall()
-    return rows
+    dists = []
+    for d in cur.fetchall():
+        if d[0] != 0:
+            dists.append(d[0])
+    return np.array(dists)
 
 def get_avg(conn):
     cur = conn.cursor()
@@ -15,7 +19,7 @@ def get_avg(conn):
     for s in cur.fetchall():
         if s[0] != 0:
             avg_speeds.append(s[0])
-    return avg_speeds
+    return np.array(avg_speeds)
     
 db_file = 'tracks.bk'
 conn = conn = sqlite3.connect(db_file)
@@ -28,10 +32,19 @@ conn = conn = sqlite3.connect(db_file)
 distances = get_distances(conn)
 total_dist = 0
 for d in distances:
-    total_dist += d[0]
+    total_dist += d
 print(f'Total distance: {total_dist / 1000:.3f} km')
-
 avg_speeds = get_avg(conn)
-plt.plot(avg_speeds)
-plt.title('Average speed (km/h)')
+
+fig, ax = plt.subplots(2,1)
+ax[0].plot(avg_speeds, 'r')
+ax[0].set_ylabel('avg speed (km/h)', color='r')
+ax[0].tick_params('y', colors='r')
+
+ax[1].plot(distances/1000, 'b:')
+ax[1].set_ylabel('dist (km)', color='b')
+ax[1].tick_params('y', colors='b')
+ax[1].set_title(f'Total distance: {total_dist / 1000:.3f} km')
+
+fig.suptitle(f'Tracks stats')
 plt.show()
