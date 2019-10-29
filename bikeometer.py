@@ -1,32 +1,37 @@
 import sqlite3
 import matplotlib.pyplot as plt
 
-def print_all_tables(conn):
+def get_distances(conn):
     cur = conn.cursor()
-    cur.execute('SELECT name from sqlite_master where type= "table"')
-    rows = cur.fetchall()
-    for row in rows:
-        print(row)
-    
-def get_columns_names(conn, table_name='track_details_table'):
-    cur = conn.cursor()
-    cur.execute(f'SELECT name from PRAGMA_TABLE_INFO("{table_name}")')
+    cur.execute('SELECT Distance from track_details_table')
     rows = cur.fetchall()
     return rows
-    
-def get_tracks_details(conn):
+
+def get_avg(conn):
     cur = conn.cursor()
-    cur.execute('SELECT * from track_details_table')
-    rows = cur.fetchall()
-    return rows
+    # Error : column Time contains average speed
+    cur.execute('SELECT Time from track_details_table')
+    avg_speeds = []
+    for s in cur.fetchall():
+        if s[0] != 0:
+            avg_speeds.append(s[0])
+    return avg_speeds
     
 db_file = 'tracks.bk'
 conn = conn = sqlite3.connect(db_file)
-print('Table contents:')
-print_all_tables(conn)
-print('Tracks details:')
-col_names = get_columns_names(conn)
-tracks = get_tracks_details(conn)
-print(col_names)
-for track in tracks:
-    print(track)
+# Columns in track_details_table:
+# [ ('_id',), ('Time',), ('Distance',), ('avgSpeed',), ('maxspeed',), 
+#   ('date',), ('max_altitude',), ('min_altitude',), ('start_time',), 
+#   ('final_alt',), ('initial_alt',), ('calorie_count',), ('note_text',), 
+#   ('start_timestamp',), ('elapsed_seconds',), ('finish_timestamp',)]
+# Time and avgSpeed are interverted
+distances = get_distances(conn)
+total_dist = 0
+for d in distances:
+    total_dist += d[0]
+print(f'Total distance: {total_dist / 1000:.3f} km')
+
+avg_speeds = get_avg(conn)
+plt.plot(avg_speeds)
+plt.title('Average speed (km/h)')
+plt.show()
