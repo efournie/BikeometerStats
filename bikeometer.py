@@ -59,12 +59,12 @@ for d in distances:
 print(f'Total distance: {total_dist / 1000:.3f} km')
 
 fig, ax = plt.subplots(2,1, figsize=(7,6.5))
-ax[0].plot(timestamps, avg_speeds, 'r')
+ax[0].plot(timestamps, avg_speeds, 'r-o')
 ax[0].set_ylabel('km/h', color='r')
 ax[0].tick_params('y', colors='r')
 ax[0].set_title(f'Average speed')
 
-ax[1].plot(timestamps, distances/1000, 'b:')
+ax[1].plot(timestamps, distances/1000, 'b:x')
 ax[1].set_ylabel('km', color='b')
 ax[1].tick_params('y', colors='b')
 ax[1].set_title(f'Distance (total : {total_dist / 1000:.3f} km)')
