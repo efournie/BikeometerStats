@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 import sqlite3
+import sys
 
 parser = argparse.ArgumentParser(description=f'Plot statistics from Bikeometer exported file.')
-parser.add_argument('-v', '--verbose', type=lambda x:(str(x).lower()=='true'), default=False, help='Print table contents.')
+parser.add_argument('-v', '--verbose', action='store_true', help='Print table contents.')
 parser.add_argument('-f', '--file', type=str, default='tracks.bk', help='Bikeometer exported file.')
 args = parser.parse_args()
 
@@ -28,7 +29,7 @@ def cleanup_table(conn):
         if row[1] == 0:
             row_id = row[0]
             cur.execute(f'DELETE from track_details_table where _id = {row_id}')
-            print(f'Removing track {row_id} because average speed is 0.')
+            print(f'Removing track {row_id} because average speed is 0.', file=sys.stderr)
     return conn    
 
 def get_distances_km(conn):
@@ -48,6 +49,23 @@ def get_avg_speed_kmh(conn):
     for s in cur.fetchall():
         avg_speeds.append(s[0])
     return np.array(avg_speeds)
+
+def get_max_speed_kmh(conn):
+    cur = conn.cursor()
+    cur.execute('SELECT maxspeed from track_details_table')
+    max_speed_kmh = 0
+    for s in cur.fetchall():
+        if s[0] > max_speed_kmh:
+            max_speed_kmh = s[0]
+    return max_speed_kmh
+
+def get_total_kcal(conn):
+    cur = conn.cursor()
+    cur.execute('SELECT calorie_count from track_details_table')
+    total_kcal = 0
+    for s in cur.fetchall():
+        total_kcal += s[0]
+    return total_kcal
 
 def get_start_timestamps(conn):
     cur = conn.cursor()
@@ -75,6 +93,8 @@ conn = cleanup_table(conn)
 avg_speeds_kmh = get_avg_speed_kmh(conn)
 distances_km = get_distances_km(conn)
 timestamps = get_start_timestamps(conn)
+max_speed_kmh = get_max_speed_kmh(conn)
+total_kcal = get_total_kcal(conn)
 
 # Compute some stats
 total_dist_km = 0
@@ -86,7 +106,14 @@ hours = int(total_time_h)
 minutes = int((total_time_h - hours) * 60)
 seconds = int(((total_time_h - hours) * 60 - minutes) * 60)
 global_average_speed_kmh = total_dist_km / total_time_h
-print(f'Total distance: {total_dist_km:.3f} km. Total time: {hours}h{minutes:02d}min{seconds}s. Global average speed: {global_average_speed_kmh:.2f} km/h.')
+power = total_kcal * 4184 / (total_time_h * 3600)
+
+print(f'Total distance: {total_dist_km:.3f} km.')
+print(f'Total time: {hours}h{minutes:02d}min{seconds}s.')
+print(f'Global average speed: {global_average_speed_kmh:.2f} km/h.')
+print(f'Max speed: {max_speed_kmh:.2f} km/h.')
+print(f'Total kcal: {total_kcal:.2f} kcal.')
+print(f'Average power: {power:.2f} W.')
 
 # Plot results
 fig, ax = plt.subplots(2,1, figsize=(7,6.5))
@@ -106,5 +133,4 @@ ax[1].fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 ax[1].set_xlabel(f'\nTotal time:  {hours}h{minutes:02d}min{seconds}s')
 
 fig.suptitle(f'Tracks stats', fontsize=24)
-#plt.text(0.5, -0.01, f'Total time:  {hours}h{minutes:02d}min{seconds}s')
 plt.show()
