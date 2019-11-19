@@ -1,8 +1,9 @@
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
+from scipy.interpolate import interp1d
 import sqlite3
 import sys
 
@@ -85,6 +86,15 @@ def print_content(conn):
     for row in rows:
         print(row)
 
+def smooth(x, window_length=9):
+    xs = np.zeros((len(x) + 2 * (window_length // 2)))
+    xs[ window_length // 2 : -(window_length // 2) ] = x
+    xs[:window_length // 2] = x[0]
+    xs[-(window_length // 2 + 1):] = x[-1]
+    for i in range(x.shape[0]):
+        xs[window_length // 2 + i] = xs[i : i + window_length + 1].mean()
+    return xs[ window_length // 2 : -(window_length // 2) ]
+
 # Read from tables
 conn = sqlite3.connect(args.file)
 if args.verbose:
@@ -95,6 +105,16 @@ distances_km = get_distances_km(conn)
 timestamps = get_start_timestamps(conn)
 max_speed_kmh = get_max_speed_kmh(conn)
 total_kcal = get_total_kcal(conn)
+
+# Smooth average speeds
+avg_speeds_kmh_smoothed = smooth(avg_speeds_kmh, len(timestamps)//8)
+t0 = timestamps[0]
+t1 = timestamps[-1]
+timestamps_resampled = [ t0 + timedelta(seconds=x) for x in range(0, int((t1 - t0).total_seconds()), 3600)]
+datetime2time = lambda ts: [ (x - datetime(1970,1,1)).total_seconds() for x in ts ]
+f_interp = interp1d(datetime2time(timestamps), avg_speeds_kmh_smoothed, kind='slinear')
+avg_speeds_kmh_resampled = f_interp(datetime2time(timestamps_resampled))
+
 
 # Compute some stats
 total_dist_km = 0
@@ -117,7 +137,7 @@ print(f'Average power: {power:.2f} W.')
 
 # Plot results
 fig, ax = plt.subplots(2,1, figsize=(7,6.5))
-ax[0].plot(timestamps, avg_speeds_kmh, 'r-o')
+ax[0].plot(timestamps, avg_speeds_kmh, 'r-o', timestamps_resampled, avg_speeds_kmh_resampled, 'r:')
 ax[0].set_ylabel('km/h', color='r')
 ax[0].tick_params('y', colors='r')
 ax[0].set_title(f'Average speed (global: {global_average_speed_kmh:.2f} km/h)')
