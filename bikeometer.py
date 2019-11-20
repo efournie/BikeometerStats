@@ -140,11 +140,13 @@ fig, ax = plt.subplots(2,1, figsize=(7,6.5))
 ax[0].plot(timestamps, avg_speeds_kmh, 'r-o', timestamps_resampled, avg_speeds_kmh_resampled, 'r:')
 ax[0].set_ylabel('km/h', color='r')
 ax[0].tick_params('y', colors='r')
+ax[0].yaxis.grid()
 ax[0].set_title(f'Average speed (global: {global_average_speed_kmh:.2f} km/h)')
 
 ax[1].plot(timestamps, distances_km, 'b:x')
 ax[1].set_ylabel('km', color='b')
 ax[1].tick_params('y', colors='b')
+ax[1].yaxis.grid()
 ax[1].set_title(f'Distance (total : {total_dist_km:.3f} km)')
 
 fig.autofmt_xdate()
