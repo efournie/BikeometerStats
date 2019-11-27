@@ -13,11 +13,11 @@ parser.add_argument('-f', '--file', type=str, default='tracks.bk', help='Bikeome
 args = parser.parse_args()
 
 # Columns in track_details_table:
-# [ ('_id',), ('Time',), ('Distance',), ('avgSpeed',), ('maxspeed',), 
-#   ('date',), ('max_altitude',), ('min_altitude',), ('start_time',), 
-#   ('final_alt',), ('initial_alt',), ('calorie_count',), ('note_text',), 
+# [ ('_id',), ('Time',), ('Distance',), ('avgSpeed',), ('maxspeed',),
+#   ('date',), ('max_altitude',), ('min_altitude',), ('start_time',),
+#   ('final_alt',), ('initial_alt',), ('calorie_count',), ('note_text',),
 #   ('start_timestamp',), ('elapsed_seconds',), ('finish_timestamp',)]
-# 
+#
 # Existing bugs in Bikeometer exported files:
 #   - Time and avgSpeed are interverted
 #   - The last exported track only contains _id, date and start_timestamp
@@ -31,7 +31,7 @@ def cleanup_table(conn):
             row_id = row[0]
             cur.execute(f'DELETE from track_details_table where _id = {row_id}')
             print(f'Removing track {row_id} because average speed is 0.', file=sys.stderr)
-    return conn    
+    return conn
 
 def get_distances_km(conn):
     cur = conn.cursor()
