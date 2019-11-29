@@ -94,6 +94,13 @@ conn = cleanup_table(conn)
 avg_speeds_kmh = get_avg_speed_kmh(conn)
 distances_km = get_distances_km(conn)
 timestamps = get_start_timestamps(conn)
+avg_speed_evolution = []
+total_d = 0
+total_t = 0
+for d, avg_s in zip(distances_km, avg_speeds_kmh):
+    total_d += d
+    total_t += d / avg_s
+    avg_speed_evolution.append(total_d / total_t)
 max_speed_kmh = get_max_speed_kmh(conn)
 total_kcal = get_total_kcal(conn)
 
@@ -118,18 +125,21 @@ print(f'Average power: {power:.2f} W.')
 
 # Plot results
 fig, ax = plt.subplots(2,1, figsize=(7,6.5))
-ax[0].plot(timestamps, avg_speeds_kmh, 'r-o')
-ax[0].hlines(y=global_average_speed_kmh, xmin=timestamps[0], xmax=timestamps[-1], colors='lightcoral', linestyles='--')
+ax[0].plot(timestamps, avg_speeds_kmh, 'r-o', label='Average speeds')
+ax[0].plot(timestamps, avg_speed_evolution, color='lightcoral', linestyle=':', label='Avg speed evolution')
+ax[0].hlines(y=global_average_speed_kmh, xmin=timestamps[0], xmax=timestamps[-1], colors='lightcoral', label='Global avg speed')
 ax[0].set_ylabel('km/h', color='r')
 ax[0].tick_params('y', colors='r')
 ax[0].yaxis.grid()
-ax[0].set_title(f'Average speed (global: {global_average_speed_kmh:.2f} km/h)')
+ax[0].set_title(f'Average speeds (global: {global_average_speed_kmh:.2f} km/h)')
+ax[0].legend()
 
-ax[1].plot(timestamps, distances_km, 'b:x')
+ax[1].plot(timestamps, distances_km, 'b-x', label='Distances')
 ax[1].set_ylabel('km', color='b')
 ax[1].tick_params('y', colors='b')
 ax[1].yaxis.grid()
-ax[1].set_title(f'Distance (total : {total_dist_km:.3f} km)')
+ax[1].set_title(f'Distances (total : {total_dist_km:.3f} km)')
+ax[1].legend()
 
 fig.autofmt_xdate()
 ax[0].fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
