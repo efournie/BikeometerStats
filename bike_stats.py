@@ -24,7 +24,8 @@ avg_speeds_kmh = bike_data.get_avg_speed_kmh()
 distances_km = bike_data.get_distances_km()
 timestamps = bike_data.get_start_timestamps()
 max_speed_kmh = bike_data.get_max_speed_kmh()
-total_kcal = bike_data.get_total_kcal()
+if args.bk != '':
+    total_kcal = bike_data.get_total_kcal()
 
 avg_speed_evolution = []
 total_d = 0
@@ -44,14 +45,16 @@ hours = int(total_time_h)
 minutes = int((total_time_h - hours) * 60)
 seconds = int(((total_time_h - hours) * 60 - minutes) * 60)
 global_average_speed_kmh = total_dist_km / total_time_h
-power = total_kcal * 4184 / (total_time_h * 3600)
+if args.bk != '':
+    power = total_kcal * 4184 / (total_time_h * 3600)
 
 print(f'Total distance: {total_dist_km:.3f} km.')
 print(f'Total time: {hours}h{minutes:02d}min{seconds}s.')
 print(f'Global average speed: {global_average_speed_kmh:.2f} km/h.')
 print(f'Max speed: {max_speed_kmh:.2f} km/h.')
-print(f'Total kcal: {total_kcal:.2f} kcal.')
-print(f'Average power: {power:.2f} W.')
+if args.bk != '':
+    print(f'Total kcal: {total_kcal:.2f} kcal.')
+    print(f'Average power: {power:.2f} W.')
 
 # Plot results
 fig, ax = plt.subplots(2,1, figsize=(7,6.5))

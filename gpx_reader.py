@@ -47,9 +47,5 @@ class GpxReader():
     def get_max_speed_kmh(self):
         return max(self.max_speeds)
 
-    def get_total_kcal(self):
-        ''' TODO: implement energy calculation '''
-        return 0
-
     def get_start_timestamps(self):
         return self.start_timestamps

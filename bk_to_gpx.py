@@ -6,7 +6,7 @@ import sqlite3
 
 parser = argparse.ArgumentParser(description=f'Extract contents of .bk file to .gpx files in a directory.')
 parser.add_argument('-b', '--bk', type=str, default='', help='Bikeometer exported file that will be used as input.')
-parser.add_argument('-g', '--gpx', type=str, default='', help="Directory in which all GPX files will be used as input.")
+parser.add_argument('-g', '--gpx', type=str, default='', help="Directory in which all output GPX files will be stored.")
 args = parser.parse_args()
 
 assert ((args.bk != '') and (args.gpx != '')), 'Both input file and output directory must be set.'

@@ -2,15 +2,15 @@
 
 ## Description
 
-bike_stats.py displays stats (total distance, total time, global average speed) and plots average speed and distance of each track.
+`bike_stats.py` displays stats (total distance, total time, global average speed) and plots average speed and distance of each track.
 
-The data is obtained either from the exported tracks.bk file (-b argument) or the GPX files contained in the chosen directory (-g argument). 
+The data is obtained either from the exported `tracks.bk` file (-b argument) or the GPX files contained in the chosen directory (-g argument). 
 
 As of 2019/11/29, Bikeometer has two bugs in data export:
-- Time and avgSpeed are interverted in the track_details_table
-- The last exported track only contains _id, date and start_timestamp
+- `Time` and `avgSpeed` are interverted in `track_details_table`
+- The last exported track only contains `_id`, `date` and `start_timestamp`
 
-bk_to_gpx.py creates GPX files in the chosen directory from the exported .bk file and can be used to export contents of tracks.bk in a portable format. Note that there are discrepancies between the tracks data obtained directly from the bk file and the converted GPX files.
+`bk_to_gpx.py` creates GPX files in the chosen directory from the exported .bk file and can be used to export contents of `tracks.bk` in a portable format. Note that there are discrepancies between the tracks data obtained directly from the bk file and the converted GPX files because `gpxpy` eliminates outliers in the GPX files.
 
 ## Requirements
 
@@ -45,7 +45,7 @@ Extract contents of .bk file to .gpx files in a directory.
 optional arguments:
   -h, --help         show this help message and exit
   -b BK, --bk BK     Bikeometer exported file that will be used as input.
-  -g GPX, --gpx GPX  Directory in which all GPX files will be used as input.
+  -g GPX, --gpx GPX  Directory in which all output GPX files will be stored.
   ```
 
 ## Example results
